@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+from location_exif_tool import AddLocationExif
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-f',
+        action='store',
+        dest='folder',
+        type=str,
+        default='.'
+    )
+    folder = parser.parse_args().folder
+    AddLocationExif.process_folder(folder)
+
+if __name__ == '__main__':
+    main()
