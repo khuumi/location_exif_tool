@@ -11,8 +11,18 @@ def main():
         type=str,
         default='.'
     )
+
+    parser.add_argument(
+        '-b',
+        action='store',
+        dest='backup',
+        type=bool,
+        default=False
+    )
+
     folder = parser.parse_args().folder
-    AddLocationExif.process_folder(folder)
+    backup = parser.parse_args().backup
+    AddLocationExif.process_folder(folder, backup)
 
 if __name__ == '__main__':
     main()

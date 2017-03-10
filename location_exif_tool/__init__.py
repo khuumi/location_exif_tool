@@ -19,7 +19,9 @@ class AddLocationExif(object):
     
 
     @staticmethod
-    def _add_location_to_photos(file_folder_name, lat, lon):
+    def _add_location_to_photos(file_folder_name, lat, lon, backup):
+        print 'Converting photos in %s with location: (%s, %s)' % (
+            file_folder_name, lat, lon)
         # If expressed in decimal form, northern latitudes are positive,
         # southern latitudes are negative. Eastern longitudes are positive, 
         # western longitudes are negative.
@@ -41,13 +43,20 @@ class AddLocationExif(object):
 
         args = ['exiftool', longitude, latitude, 
                 latitude_ref, longitude_ref, file_folder_name]
+        if not backup:
+            args.append('-overwrite_original')
+
         exiftool = Popen(args, stdin=PIPE, stdout=PIPE)
         stderr, stdout = exiftool.communicate()
+        if stderr:
+            print stderr
+        if stdout:
+            print stdout
         return (stdout, stderr)
 
 
     @classmethod
-    def process_folder(cls, path):
+    def process_folder(cls, path, backup=False):
         '''Will process the subfolders at path to add coordinates to each of 
            the photos based on subfolders name'''
 
@@ -55,10 +64,10 @@ class AddLocationExif(object):
             lat, lon = cls._get_coordinates_for_address(sub_folder_name)
             combined_path = os.path.join(path, sub_folder_name)
             if os.path.isdir(combined_path):
-                cls._add_location_to_photos(path, lat, lon)
+                cls._add_location_to_photos(combined_path, lat, lon, backup)
 
                 # Now do the grandchildren folders
                 for folder_name in os.listdir(combined_path):
                     new_path = os.path.join(combined_path, folder_name)
                     if os.path.isdir(new_path):
-                        cls._add_location_to_photos(new_path, lat, lon)
+                        cls._add_location_to_photos(new_path, lat, lon, backup)
